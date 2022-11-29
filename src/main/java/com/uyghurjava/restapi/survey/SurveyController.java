@@ -1,14 +1,17 @@
 package com.uyghurjava.restapi.survey;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 public class SurveyController {
@@ -46,10 +49,17 @@ public class SurveyController {
 	}
 	
 	@RequestMapping(value = "/surveys/{surveyId}/questions", method = RequestMethod.POST)
-	public void addNewSurveyQuestion(
+	public ResponseEntity<Object> addNewSurveyQuestion(
 			@PathVariable(name="surveyId") String surveyId,
 			@RequestBody Question question) {
-		surveyService.addNewSurveyQuestion(surveyId, question);
+		String questionId = surveyService.addNewSurveyQuestion(surveyId, question);
+		// surveys/{surveyId}/questions/{questionId}
+		
+		URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("/{questionId}").buildAndExpand(questionId).toUri();
+		
+		return ResponseEntity.created(location).build();
 	}
 
 	@RequestMapping("/surveys/{surveyId}/questions/{questionId}")
@@ -60,6 +70,25 @@ public class SurveyController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		return question;
+	}
+	
+	@RequestMapping(value = "/surveys/{surveyId}/questions/{questionId}", method = RequestMethod.DELETE)
+	public ResponseEntity<Object> deleteSpecificSurveyQuestion(@PathVariable(name = "surveyId") String surveyId,
+			@PathVariable String questionId) {
+		surveyService.deleteSpecificSurveyQuestion(surveyId, questionId);
+		
+		return ResponseEntity.noContent().build();
+	}
+	
+	@RequestMapping(value = "/surveys/{surveyId}/questions/{questionId}", method = RequestMethod.PUT)
+	public ResponseEntity<Object> updateSpecificSurveyQuestion(
+			@PathVariable(name = "surveyId") String surveyId,
+			@PathVariable String questionId,
+			@RequestBody Question question) {
+		surveyService.updateSpecificSurveyQuestion(surveyId, questionId, question);
+		
+		return ResponseEntity.ok(question);
+		
 	}
 
 }

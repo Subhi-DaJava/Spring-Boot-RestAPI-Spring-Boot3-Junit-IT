@@ -1,5 +1,7 @@
 package com.uyghurjava.restapi.survey;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,11 +90,42 @@ public class SurveyService {
 		return question.get();
 	}
 
-	public void addNewSurveyQuestion(String surveyId, Question question) {
+	public String addNewSurveyQuestion(String surveyId, Question question) {
 		List<Question> questions = retrieveAllSurveyQuestions(surveyId);
 		if(questions == null) {
 			throw new RuntimeException("This survey with id " + surveyId + " doesn't exit!");
 		}
+	
+		question.setId(generateRandomId());
+		questions.add(question);
+		
+		return question.getId();
+	}
+
+	private String generateRandomId() {
+		SecureRandom secureRandom = new SecureRandom();
+		String randomId = new BigInteger(32, secureRandom).toString();
+		return randomId;
+	}
+	
+	public String deleteSpecificSurveyQuestion(String surveyId, String questionId) {
+
+		List<Question> questions = retrieveAllSurveyQuestions(surveyId);
+		if (questions == null) {
+			return null;
+		}
+		
+		boolean removed = questions.removeIf(question -> question.getId().equalsIgnoreCase(questionId));
+		if(!removed) {
+			return null;
+		}
+
+		return questionId;
+	}
+
+	public void updateSpecificSurveyQuestion(String surveyId, String questionId, Question question) {
+		List<Question> questions = retrieveAllSurveyQuestions(surveyId);
+		questions.removeIf(q -> q.getId().equalsIgnoreCase(questionId));
 		questions.add(question);
 	}
 
