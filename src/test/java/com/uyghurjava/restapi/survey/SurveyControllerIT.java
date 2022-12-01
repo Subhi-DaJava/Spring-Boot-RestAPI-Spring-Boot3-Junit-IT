@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) // which port launch up for a request
@@ -39,6 +42,7 @@ public class SurveyControllerIT {
 	private static String GENERIC_SURVEYS_URL = "/surveys";
 	
 	private static String SPECIFIC_SURVEY_URL = "/surveys/Survey1";
+	
 
 	// {"id":"Question1","description":"Most Popular Cloud Platform
 	// Today","options":["AWS","Azure","Google Cloud","Oracle
@@ -211,7 +215,12 @@ public class SurveyControllerIT {
 				]
 				""";
 		ResponseEntity<String> response = template.getForEntity(GENERIC_QUESTIONS_URL, String.class);
+		
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		assertEquals("application/json", response.getHeaders().get("Content-Type").get(0));
+		
 		JSONAssert.assertEquals(responseExpected, response.getBody(), false);
+		
 	}
 	
 	// retrive all surveys
@@ -372,6 +381,8 @@ public class SurveyControllerIT {
 			]
 				""";
 		ResponseEntity<String> response = template.getForEntity(GENERIC_SURVEYS_URL, String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+
 		JSONAssert.assertEquals(responseExpected, response.getBody(), false);
 	}
 	
@@ -467,8 +478,62 @@ public class SurveyControllerIT {
 								}
 				""";
 		JSONAssert.assertEquals(responseExpected, responseEntity.getBody(), false);
+		assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
 
 	}
+	
+	
+	// Post Methods
+	
+	// /surveys/{surveyId}/questions
+	// RequestBody: Content-Type: Application/Json
+	// 201 
+	// Location: http://localhost:8080/surveys/{surveyId}/questions/564646464
+	@Test
+	void addNewSurveyQuestion_basiceScenario() {
+		String requestBody = """
+			    {	
+				"description": "Your Favorite Programming Language",
+				"options": [
+				"JAVA",
+				"PYTHON",
+				"JavaScript",
+				"C#"
+				],
+				"correctAnswer": "JAVA"
+				}
+				""";
+		
+		HttpHeaders headers = new HttpHeaders();
+		//headers.add("Content-Type", "application/json");
+		headers.add("Content-Type", "application/json");
+		HttpEntity<String> httpEntity = new HttpEntity<String>(requestBody, headers);
+	
+		ResponseEntity<String> responseEntity 
+		= template.exchange(
+				GENERIC_QUESTIONS_URL,
+				HttpMethod.POST,
+				httpEntity,
+				String.class);
+		
+		//System.out.println(responseEntity.getHeaders());
+		//System.out.println(responseEntity.getBody());
+		// [Location:"http://localhost:51120/surveys/Survey1/questions/362054959",
+		// Content-Length:"0", Date:"Thu, 01 Dec 2022 20:07:57 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]
+		
+		assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+		String locationHeader = responseEntity.getHeaders().get("Location").get(0);
+		assertTrue(locationHeader.contains("/surveys/Survey1/questions"));
+		
+		// delete request for eliminate the side effect, order of the tests
+		
+		template.delete(locationHeader);
+	}
+	
+	
+	
+	
+	
 	
 	
 }
