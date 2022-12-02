@@ -3,6 +3,8 @@ package com.uyghurjava.restapi.survey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Base64;
+
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -52,10 +54,19 @@ public class SurveyControllerIT {
 
 	@Test
 	void retrieveSpecificSurveyQuestion_BasicScenario() throws JSONException {
-		ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_QUESTION_URL, String.class); // String.class
-																											// is
-																											// response
-																											// Entity
+		
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = template.exchange(SPECIFIC_QUESTION_URL, HttpMethod.GET, httpEntity,
+				String.class);
+
+		// ResponseEntity<String> responseEntity =
+		// template.getForEntity(SPECIFIC_QUESTION_URL, String.class); // String.class
+		// is
+		// response
+		// Entity
 		// System.out.println(responseEntity.getBody());
 		// System.out.println(responseEntity.getHeaders());
 
@@ -73,10 +84,16 @@ public class SurveyControllerIT {
 
 	@Test
 	void retrieveSpecificSurveyQuestion_BasicScenario_Some_Properties() throws JSONException {
-		ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_QUESTION_URL, String.class); // String.class
-																											// is
-																											// response
-																											// Entity
+		
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity =
+				template.exchange(SPECIFIC_QUESTION_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		// ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_QUESTION_URL, String.class); 
 		// System.out.println(responseEntity.getBody());
 		// System.out.println(responseEntity.getHeaders());
 
@@ -92,10 +109,16 @@ public class SurveyControllerIT {
 
 	@Test
 	void retrieveSpecificSurveyQuestion_BasicScenario_ContentType_StatusOfResponse() throws JSONException {
-		ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_QUESTION_URL, String.class); // String.class
-																											// is
-																											// response
-																											// Entity
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity =
+				template.exchange(SPECIFIC_QUESTION_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		//ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_QUESTION_URL, String.class);
+		
 		// System.out.println(responseEntity.getBody());
 		// System.out.println(responseEntity.getHeaders());
 
@@ -189,8 +212,17 @@ public class SurveyControllerIT {
 				}
 				]
 				""";
-		ResponseEntity<String> response = template.getForEntity(GENERIC_QUESTIONS_URL, String.class);
-		JSONAssert.assertEquals(responseExpected, response.getBody(), true);
+		
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(GENERIC_QUESTIONS_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		//ResponseEntity<String> response = template.getForEntity(GENERIC_QUESTIONS_URL, String.class);
+		JSONAssert.assertEquals(responseExpected, responseEntity.getBody(), true);
 	}
 	
 	@Test
@@ -214,12 +246,20 @@ public class SurveyControllerIT {
 				}
 				]
 				""";
-		ResponseEntity<String> response = template.getForEntity(GENERIC_QUESTIONS_URL, String.class);
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(GENERIC_QUESTIONS_URL, HttpMethod.GET, httpEntity,
+				String.class);
 		
-		assertTrue(response.getStatusCode().is2xxSuccessful());
-		assertEquals("application/json", response.getHeaders().get("Content-Type").get(0));
+		// ResponseEntity<String> response = template.getForEntity(GENERIC_QUESTIONS_URL, String.class);
 		
-		JSONAssert.assertEquals(responseExpected, response.getBody(), false);
+		assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+		assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
+		
+		JSONAssert.assertEquals(responseExpected, responseEntity.getBody(), false);
 		
 	}
 	
@@ -361,8 +401,16 @@ public class SurveyControllerIT {
 				}
 				]
 				""";
-		ResponseEntity<String> response = template.getForEntity(GENERIC_SURVEYS_URL, String.class);
-		JSONAssert.assertEquals(responseExpected, response.getBody(), true);
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(GENERIC_SURVEYS_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		// ResponseEntity<String> response = template.getForEntity(GENERIC_SURVEYS_URL, String.class);
+		JSONAssert.assertEquals(responseExpected, responseEntity.getBody(), true);
 	}
 	
 	@Test
@@ -380,10 +428,18 @@ public class SurveyControllerIT {
 				}
 			]
 				""";
-		ResponseEntity<String> response = template.getForEntity(GENERIC_SURVEYS_URL, String.class);
-		assertTrue(response.getStatusCode().is2xxSuccessful());
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
 
-		JSONAssert.assertEquals(responseExpected, response.getBody(), false);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(GENERIC_SURVEYS_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		//ResponseEntity<String> response = template.getForEntity(GENERIC_SURVEYS_URL, String.class);
+		assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+
+		JSONAssert.assertEquals(responseExpected, responseEntity.getBody(), false);
 	}
 	
 	
@@ -391,7 +447,16 @@ public class SurveyControllerIT {
 	
 	@Test
 	void retrieveSpecificSurvey_BasicScenario() throws JSONException {
-		ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_SURVEY_URL, String.class); 
+		
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(SPECIFIC_SURVEY_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		//ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_SURVEY_URL, String.class); 
 
 		String responseExpected = """
 				{
@@ -463,7 +528,16 @@ public class SurveyControllerIT {
 	
 	@Test
 	void retrieveSpecificSurvey_Some_Properties() throws JSONException {
-		ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_SURVEY_URL, String.class); 
+		
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> responseEntity = 
+				template.exchange(SPECIFIC_SURVEY_URL, HttpMethod.GET, httpEntity,
+				String.class);
+		
+		//ResponseEntity<String> responseEntity = template.getForEntity(SPECIFIC_SURVEY_URL, String.class); 
 
 		String responseExpected = """
 								{
@@ -504,9 +578,8 @@ public class SurveyControllerIT {
 				}
 				""";
 		
-		HttpHeaders headers = new HttpHeaders();
-		//headers.add("Content-Type", "application/json");
-		headers.add("Content-Type", "application/json");
+		HttpHeaders headers = createHttpContentTypeAndAuthorizationHeaders();
+		
 		HttpEntity<String> httpEntity = new HttpEntity<String>(requestBody, headers);
 	
 		ResponseEntity<String> responseEntity 
@@ -526,14 +599,39 @@ public class SurveyControllerIT {
 		assertTrue(locationHeader.contains("/surveys/Survey1/questions"));
 		
 		// delete request for eliminate the side effect, order of the tests
+		ResponseEntity<String> responseEntityDelete 
+		= template.exchange(
+				locationHeader,
+				HttpMethod.DELETE,
+				httpEntity,
+				String.class);
 		
-		template.delete(locationHeader);
+		//template.delete(locationHeader);
+		assertTrue(responseEntityDelete.getStatusCode().is2xxSuccessful());
+	}
+
+
+	String performBasicAuthEncoding(String user, String password) {
+		String combined = user + ":" + password;
+		// Base64 Encoding => Bytes
+		// Bytes => Base64
+		
+		byte[] encodedBytes = Base64.getEncoder().encode(combined.getBytes());
+		
+		return new String(encodedBytes);
+		
 	}
 	
-	
-	
-	
-	
+	private HttpHeaders createHttpContentTypeAndAuthorizationHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		//headers.add("Content-Type", "application/json");
+		headers.add("Content-Type", "application/json");
+		// headers.add("Authorization", "Basic encoded Username, Password");
+		headers.add("Authorization", "Basic " + performBasicAuthEncoding("user_admin", "admin"));
+		// user-admin, password: admin
+		
+		return headers;
+	}
 	
 	
 }
